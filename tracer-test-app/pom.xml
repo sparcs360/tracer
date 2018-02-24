@@ -17,6 +17,7 @@
 
     <dependencies>
 
+        <!-- INCLUDE DEPENDENCY -->
         <dependency>
             <groupId>com.sparcs</groupId>
             <artifactId>tracer-capture</artifactId>
@@ -41,6 +42,7 @@
                 </configuration>
             </plugin>
 
+            <!-- INCLUDE PLUGIN TO WEAVE THE ASPECT IN -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>aspectj-maven-plugin</artifactId>

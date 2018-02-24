@@ -25,8 +25,10 @@ public aspect Tracer {
         sb.append(indentation.substring(0, callDepth));
 
         sb.append(isEntering ? "+" : "-");
+        if (thisJoinPointStaticPart.getSignature().getName().equals("<init>")) {
+            sb.append(thisJoinPointStaticPart.getSignature().getDeclaringType().getName());
+        }
         sb.append(thisJoinPointStaticPart.getSignature().getName());
-//                .append(thisJoinPointStaticPart.getSignature().getDeclaringType().getName());
         printParameters(sb, thisJoinPoint);
 
         if (!isEntering) {
@@ -60,7 +62,9 @@ public aspect Tracer {
     final static Logger LOG = LoggerFactory.getLogger("TRACER");
 
     pointcut tracedMethods():
-            execution(* *(..)) && !within(Tracer);
+            (execution(new(..)) ||
+            execution(* *(..))) &&
+            !within(Tracer);
 
     Object around(): tracedMethods() {
 

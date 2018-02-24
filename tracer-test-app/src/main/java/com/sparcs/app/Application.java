@@ -20,13 +20,23 @@ public class Application {
 
 	    return (args) -> {
 
-	        ClassA a = new ClassA();
+	        ClassA a = new ClassA("A");
 	        a.methodA();
         };
     }
 
-    @Component
     public static class ClassA {
+
+        private String name;
+
+        ClassA(String name) {
+
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
 
         public void methodA() {
 
