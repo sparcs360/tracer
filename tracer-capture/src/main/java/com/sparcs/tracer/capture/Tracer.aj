@@ -8,25 +8,28 @@ public aspect Tracer {
     private final static Logger LOG = LoggerFactory.getLogger("TRACER");
     private final static CallStack callStack = new CallStack();
 
-    pointcut tracedMethods():
-            (execution(new(..)) ||
-                    execution(* *(..))) &&
-                    !within(com.sparcs.tracer.capture.*);
+//    pointcut tracedMethods():
+//            (execution(new(..)) ||
+//                    execution(* *(..))) &&
+//                    !within(com.sparcs.tracer.capture.*);
 
-    Object around(): tracedMethods() {
+    pointcut annotatedMethod():
+            cflow(@annotation(TraceSubject)) &&
+                        !within(com.sparcs.tracer.capture.*);
 
+    Object around(): annotatedMethod() {
+
+        Call callOut = callStack.push(thisJoinPoint);
         if (LOG.isTraceEnabled()) {
-
-            Call call = callStack.push(thisJoinPoint);
-            LOG.trace(call.toString());
+            LOG.trace(callOut.toString());
         }
 
         Object result = proceed();
 
+        Call callIn = callStack.pop(result);
         if (LOG.isTraceEnabled()) {
 
-            Call call = callStack.pop(result);
-            LOG.trace(call.toString());
+            LOG.trace(callIn.toString());
         }
 
         return result;

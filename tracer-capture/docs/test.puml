@@ -1,0 +1,23 @@
+@startuml
+
+participant "0\n(**Application**)" as Application
+participant "0\n(**ClassA**)" as ClassA
+participant "4066c471\n(**ClassA**)" as O4066c471
+
+[->O0:gogo
+O0->O0:gogo
+O0->O0:<init>
+O0->O0:<clinit>
+O0->O4066c471:<init>
+O4066c471->O4066c471:name
+O4066c471-->O0:null
+O0-->O0:com.sparcs.app.Application$ClassA@4066c471
+O0->O0:methodA
+O0->O4066c471:methodA
+O4066c471->O4066c471:methodB
+O4066c471->O4066c471:methodB
+O4066c471-->O0:2738
+O0-->O0:2738
+O0-->[:null
+
+@enduml

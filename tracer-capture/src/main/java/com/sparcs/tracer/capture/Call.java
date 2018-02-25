@@ -1,8 +1,13 @@
 package com.sparcs.tracer.capture;
 
 import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.Signature;
 import org.aspectj.lang.reflect.CodeSignature;
+import org.aspectj.lang.reflect.FieldSignature;
 import org.springframework.util.StringUtils;
+
+import javax.swing.table.TableStringConverter;
+import java.lang.reflect.Field;
 
 public class Call {
 
@@ -10,7 +15,8 @@ public class Call {
     private static final String indentation = "                            ";
 
     private boolean isExecuting;
-    private JoinPoint joinPoint;
+    private final InstanceIdentifer instanceIdentifer;
+    private final JoinPoint joinPoint;
     private final int depth;
     private Object result;
 
@@ -22,13 +28,26 @@ public class Call {
     private Call(JoinPoint joinPoint, int depth) {
 
         this.isExecuting = true;
+        this.instanceIdentifer = new InstanceIdentifer(joinPoint);
         this.joinPoint = joinPoint;
         this.depth = depth;
+    }
+
+    public InstanceIdentifer getInstanceIdentifier() {
+        return instanceIdentifer;
+    }
+
+    public String getMethodName() {
+        return joinPoint.getSignature().getName();
     }
 
     void markExecuted(Object result) {
         isExecuting = false;
         this.result = result;
+    }
+
+    public Object getReturnValue() {
+        return result;
     }
 
     @Override
@@ -63,22 +82,34 @@ public class Call {
 
     private void printParameters(StringBuilder sb, JoinPoint thisJoinPoint) {
 
-        Object[] args = thisJoinPoint.getArgs();
-        String[] names = ((CodeSignature) thisJoinPoint.getSignature()).getParameterNames();
-        Class[] types = ((CodeSignature) thisJoinPoint.getSignature()).getParameterTypes();
-
         sb.append("(");
-        for (int i = 0; i < args.length; i++) {
-            sb.append(names[i]).append("=");
-            if (types[i].isArray()) {
-                sb.append(StringUtils.arrayToCommaDelimitedString((Object[]) args[i]));
-            } else {
-                sb.append(args[i].toString());
+
+        Object[] args = thisJoinPoint.getArgs();
+        Signature signature = thisJoinPoint.getSignature();
+
+        if (signature instanceof CodeSignature) {
+
+            String[] names = ((CodeSignature) signature).getParameterNames();
+            Class[] types = ((CodeSignature) signature).getParameterTypes();
+
+            for (int i = 0; i < args.length; i++) {
+                sb.append(names[i]).append("=");
+                if (types[i].isArray()) {
+                    sb.append(StringUtils.arrayToCommaDelimitedString((Object[]) args[i]));
+                } else {
+                    sb.append(args[i].toString());
+                }
+                if (i < args.length - 1) {
+                    sb.append(", ");
+                }
             }
-            if (i < args.length - 1) {
-                sb.append(", ");
-            }
+        } else {
+
+            Field field = ((FieldSignature) signature).getField();
+            sb.append(field.getName());
+
         }
+
         sb.append(")");
     }
 }

@@ -1,5 +1,6 @@
 package com.sparcs.app;
 
+import com.sparcs.tracer.capture.TraceSubject;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -14,14 +15,16 @@ public class Application {
 		SpringApplication.run(Application.class, args);
 	}
 
-	@Bean
+    @Bean
     CommandLineRunner commandLineRunner() {
 
-	    return (args) -> {
+	    return Application::gogo;
+    }
 
-	        ClassA a = new ClassA("A");
-	        int result = a.methodA(37);
-        };
+    @TraceSubject
+    private static void gogo(String... args) {
+        ClassA a = new ClassA("A");
+        int result = a.methodA(37);
     }
 
     public static class ClassA {

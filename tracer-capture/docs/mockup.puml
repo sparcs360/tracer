@@ -1,0 +1,34 @@
+@startuml
+
+' Set<InstanceIdentifier> participants;
+participant "376a0d86\n(**Application**)" as O376a0d86
+participant "13df2a8c\n(**Application.lambda$0**)" as O13df2a8c
+participant "7c51f34b\n(**Application.ClassA**)" as O7c51f34b
+
+' on push
+' caller = stack.isEmpty ? "[" : stack.peek.getInstanceIdentifier.toString
+' output:
+' caller + "->" + call.getInstanceIdentifier.toString + ":" + call.getMethod
+[->O376a0d86:<init>
+
+' on pop
+' caller = stack.isEmpty ? "[" : stack.peek.getInstanceIdentifier.toString
+' output:
+' call.getInstanceIdentifier.toString + "-->" + caller + ":" + call.getReturnValue.toString
+O376a0d86 -->[
+
+[->O376a0d86 : commandLineRunner
+O376a0d86->O13df2a8c : <init>
+O13df2a8c-->O376a0d86
+O376a0d86-->[
+
+    [-> O13df2a8c : <lambda>(args=one,--two,three)
+    O13df2a8c -> O7c51f34b : <init>(name=A)
+    O7c51f34b --> O13df2a8c
+
+    O13df2a8c -> O7c51f34b : methodA(a=37)
+    O7c51f34b -> O7c51f34b : methodB(x=37)
+    O7c51f34b --> O7c51f34b : = 1369
+
+    O7c51f34b --> O13df2a8c : =2738
+@enduml
