@@ -5,7 +5,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Component;
 
 @SpringBootApplication
 @Configuration
@@ -16,12 +15,12 @@ public class Application {
 	}
 
 	@Bean
-    CommandLineRunner init() {
+    CommandLineRunner commandLineRunner() {
 
 	    return (args) -> {
 
 	        ClassA a = new ClassA("A");
-	        a.methodA();
+	        int result = a.methodA(37);
         };
     }
 
@@ -38,13 +37,13 @@ public class Application {
             return name;
         }
 
-        public void methodA() {
+        int methodA(int a) {
 
-            methodB();
+            return methodB(a) * 2;
         }
 
-        private int methodB() {
-            return 0;
+        private int methodB(int x) {
+            return x * x;
         }
     }
 }
