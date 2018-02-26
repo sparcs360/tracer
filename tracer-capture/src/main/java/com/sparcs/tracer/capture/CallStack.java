@@ -1,12 +1,16 @@
 package com.sparcs.tracer.capture;
 
 import org.aspectj.lang.JoinPoint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Stack;
 
 public class CallStack {
+
+    private final static Logger LOG = LoggerFactory.getLogger(CallStack.class);
 
     private Set<InstanceIdentifer> participants = new HashSet<>();
     private StringBuilder sb = new StringBuilder();
@@ -15,7 +19,9 @@ public class CallStack {
     public Call push(JoinPoint joinPoint) {
 
         Call call = Call.from(joinPoint, stack.size());
-        participants.add(call.getInstanceIdentifier());
+        if (!participants.contains(call.getInstanceIdentifier())) {
+            participants.add(call.getInstanceIdentifier());
+        }
 
         InstanceIdentifer caller = stack.isEmpty() ? InstanceIdentifer.GOD : stack.peek().getInstanceIdentifier();
 
@@ -43,8 +49,6 @@ public class CallStack {
                     .append(call.getInstanceIdentifier().getId())
                     .append("-->")
                     .append(caller.getId())
-                    .append(":")
-                    .append(call.getReturnValue())
                     .append("\n");
 
             dumpSequence();
@@ -54,7 +58,10 @@ public class CallStack {
     }
 
     private void dumpSequence() {
-        participants.stream().filter(p -> !p.equals(InstanceIdentifer.GOD)).forEach(p -> System.out.println("participant \"" + p.toString() + "\" as " + p.getId()));
+        participants.stream()
+                .filter(p -> !p.equals(InstanceIdentifer.GOD))
+                .sorted()
+                .forEach(p -> System.out.println("participant \"" + p.toString() + "\" as " + p.getId()));
         System.out.println("\n" + sb.toString());
     }
 }

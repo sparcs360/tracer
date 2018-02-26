@@ -1,38 +1,38 @@
 package com.sparcs.tracer.capture;
 
-import org.aspectj.lang.JoinPoint;
-
 import java.util.Objects;
 
-public class InstanceIdentifer {
+public class InstanceIdentifer implements Comparable<InstanceIdentifer> {
 
-    private static class God extends Object {}
+    private static int nextOrder = 0;
     public static final InstanceIdentifer GOD = new InstanceIdentifer();
-
-    private final Class<? extends Object> clazz;
+    private final int order;
+    private final Class<?> clazz;
     private final boolean isStatic;
     private final int hashCode;
 
-    public InstanceIdentifer(JoinPoint joinPoint) {
+    InstanceIdentifer(Class<?> clazz, Object _this) {
 
-        this.clazz = joinPoint.getStaticPart().getSignature().getDeclaringType();
+        this.order = InstanceIdentifer.nextOrder++;
+        this.clazz = clazz;
 
-        if (joinPoint.getThis() == null) {
+        if (_this == null) {
             this.isStatic = true;
-            this.hashCode = 0;
+            this.hashCode = clazz.hashCode();
         } else {
             this.isStatic = false;
-            this.hashCode = joinPoint.getThis().hashCode();
+            this.hashCode = _this.hashCode();
         }
     }
 
     private InstanceIdentifer() {
+        this.order = -1;
         this.clazz = God.class;
         this.isStatic = true;
         this.hashCode = 0;
     }
 
-    public String getHashCodeAsHexString() {
+    private String getHashCodeAsHexString() {
 
         return Integer.toHexString(hashCode);
     }
@@ -42,16 +42,18 @@ public class InstanceIdentifer {
         if (this.equals(GOD)) {
             return "[";
         }
+        if (this.isStatic) {
+            return "C" + getHashCodeAsHexString();
+        }
         return "O" + getHashCodeAsHexString();
     }
 
-    public String getClassName() {
+    private String getClassName() {
 
         if (this.equals(GOD)) {
             return "GOD";
-        } else {
-            return clazz.getSimpleName();
         }
+        return clazz.getSimpleName();
     }
 
     @Override
@@ -59,19 +61,33 @@ public class InstanceIdentifer {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         InstanceIdentifer that = (InstanceIdentifer) o;
-        return hashCode == that.hashCode &&
+        return isStatic == that.isStatic &&
+                hashCode == that.hashCode &&
                 Objects.equals(clazz, that.clazz);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(clazz, hashCode);
+        return hashCode;
+    }
+
+    @Override
+    public int compareTo(InstanceIdentifer o) {
+
+        return order - o.order;
     }
 
     @Override
     public String toString() {
 
+        if (this.isStatic) {
+            return "**" + getClassName() + "**";
+        }
+
         return getHashCodeAsHexString() + "\\n(**" + getClassName() + "**)";
+    }
+
+    private static class God {
     }
 }

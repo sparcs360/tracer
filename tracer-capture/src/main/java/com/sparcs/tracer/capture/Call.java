@@ -6,7 +6,6 @@ import org.aspectj.lang.reflect.CodeSignature;
 import org.aspectj.lang.reflect.FieldSignature;
 import org.springframework.util.StringUtils;
 
-import javax.swing.table.TableStringConverter;
 import java.lang.reflect.Field;
 
 public class Call {
@@ -28,7 +27,7 @@ public class Call {
     private Call(JoinPoint joinPoint, int depth) {
 
         this.isExecuting = true;
-        this.instanceIdentifer = new InstanceIdentifer(joinPoint);
+        this.instanceIdentifer = new InstanceIdentifer(joinPoint.getStaticPart().getSignature().getDeclaringType(), joinPoint.getThis());
         this.joinPoint = joinPoint;
         this.depth = depth;
     }
@@ -38,7 +37,7 @@ public class Call {
     }
 
     public String getMethodName() {
-        return joinPoint.getSignature().getName();
+        return joinPoint.getSignature().toShortString();
     }
 
     void markExecuted(Object result) {

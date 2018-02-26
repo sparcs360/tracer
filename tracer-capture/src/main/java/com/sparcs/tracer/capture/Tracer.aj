@@ -19,17 +19,21 @@ public aspect Tracer {
 
     Object around(): annotatedMethod() {
 
-        Call callOut = callStack.push(thisJoinPoint);
-        if (LOG.isTraceEnabled()) {
-            LOG.trace(callOut.toString());
+        if (!thisJoinPointStaticPart.getKind().equals("method-call")) {
+            Call callOut = callStack.push(thisJoinPoint);
+            if (LOG.isTraceEnabled()) {
+                LOG.trace(callOut.toString());
+            }
         }
 
         Object result = proceed();
 
-        Call callIn = callStack.pop(result);
-        if (LOG.isTraceEnabled()) {
+        if (!thisJoinPointStaticPart.getKind().equals("method-call")) {
+            Call callIn = callStack.pop(result);
+            if (LOG.isTraceEnabled()) {
 
-            LOG.trace(callIn.toString());
+                LOG.trace(callIn.toString());
+            }
         }
 
         return result;
