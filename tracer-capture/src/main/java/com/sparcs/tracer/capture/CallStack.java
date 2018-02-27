@@ -13,7 +13,7 @@ public class CallStack {
     private final static Logger LOG = LoggerFactory.getLogger(CallStack.class);
 
     private Set<InstanceIdentifer> participants = new HashSet<>();
-    private StringBuilder sb = new StringBuilder();
+    private StringBuilder plantUmlMessages = new StringBuilder();
     private Stack<Call> stack = new Stack<>();
 
     public Call push(JoinPoint joinPoint) {
@@ -25,7 +25,7 @@ public class CallStack {
 
         InstanceIdentifer caller = stack.isEmpty() ? InstanceIdentifer.GOD : stack.peek().getInstanceIdentifier();
 
-        sb.append(caller.getId())
+        plantUmlMessages.append(caller.getId())
                 .append("->")
                 .append(call.getInstanceIdentifier().getId())
                 .append(":")
@@ -45,23 +45,30 @@ public class CallStack {
 
         if (!caller.equals(call.getInstanceIdentifier())) {
 
-            sb
+            plantUmlMessages
                     .append(call.getInstanceIdentifier().getId())
                     .append("-->")
                     .append(caller.getId())
                     .append("\n");
 
-            dumpSequence();
+            if (caller.equals(InstanceIdentifer.GOD)) {
+                dumpSequence();
+            }
         }
 
         return call;
     }
 
     private void dumpSequence() {
+
+        StringBuilder plantUml = new StringBuilder();
+        plantUml.append("\n");
+
         participants.stream()
                 .filter(p -> !p.equals(InstanceIdentifer.GOD))
                 .sorted()
-                .forEach(p -> System.out.println("participant \"" + p.toString() + "\" as " + p.getId()));
-        System.out.println("\n" + sb.toString());
+                .forEach(p -> plantUml.append("participant \"").append(p.toString()).append("\" as ").append(p.getId()).append("\n"));
+        plantUml.append("\n").append(plantUmlMessages);
+        LOG.info(plantUml.toString());
     }
 }
